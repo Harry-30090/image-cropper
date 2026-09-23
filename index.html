@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3:2 → 1:2 × 3</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+
+    canvas {
+      max-width: 100%;
+      margin-top: 20px;
+      border: 1px solid #ccc;
+    }
+
+    .outputs {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+
+    .output {
+      text-align: center;
+    }
+
+    .output img {
+      width: 200px;
+      height: 400px;
+      object-fit: contain;
+      border: 1px solid #ccc;
+      background: #eee;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 8px 14px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>3:2 → 1:2 × 3</h1>
+
+  <input type="file" id="fileInput" accept="image/*">
+
+  <div class="outputs" id="outputs"></div>
+
+  <script>
+    const fileInput = document.getElementById("fileInput");
+    const outputs = document.getElementById("outputs");
+
+    fileInput.addEventListener("change", () => {
+      const file = fileInput.files[0];
+      if (!file) return;
+
+      const img = new Image();
+
+      img.onload = () => {
+        outputs.innerHTML = "";
+
+        const width = img.naturalWidth;
+        const height = img.naturalHeight;
+        
+        const sliceWidth = width / 3;
+
+        for (let i = 0; i < 3; i++) {
+          const canvas = document.createElement("canvas");
+
+          canvas.width = sliceWidth;
+          canvas.height = height;
+
+          const ctx = canvas.getContext("2d");
+
+          ctx.drawImage(
+            img,
+
+            i * sliceWidth,
+            0,
+            sliceWidth,
+            height,
+
+            0,
+            0,
+            sliceWidth,
+            height
+          );
+
+          const dataURL = canvas.toDataURL("image/jpeg", 0.95);
+
+          const container = document.createElement("div");
+          container.className = "output";
+
+          const preview = document.createElement("img");
+          preview.src = dataURL;
+
+          const download = document.createElement("button");
+          download.textContent = `Download ${i + 1}`;
+
+          download.onclick = () => {
+            const link = document.createElement("a");
+            link.href = dataURL;
+            link.download = `image-${i + 1}.jpg`;
+            link.click();
+          };
+
+          container.appendChild(preview);
+          container.appendChild(document.createElement("br"));
+          container.appendChild(download);
+
+          outputs.appendChild(container);
+        }
+      };
+
+      img.src = URL.createObjectURL(file);
+    });
+  </script>
+
+</body>
+</html>
